@@ -1,0 +1,37 @@
+services:
+  # Main web service (backend + frontend)
+  - type: web
+    name: realtime-translator
+    env: docker
+    plan: standard
+    region: oregon
+    branch: main
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: DATABASE_URL
+        value: sqlite+aiosqlite:///./translation_app.db
+      - key: FRONTEND_URL
+        fromService:
+          name: realtime-translator
+          type: web
+          property: host
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        generateValue: true
+      - key: SECRET_KEY
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: PYTHON_VERSION
+        value: "3.11"
+    healthCheckPath: /api/health
+    autoDeploy: true
+    
+databases:
+  # Optional: PostgreSQL database for production
+  # Uncomment if you want persistent database instead of SQLite
+  # - name: translator-db
+  #   databaseName: translator
+  #   plan: starter
+  #   region: oregon
